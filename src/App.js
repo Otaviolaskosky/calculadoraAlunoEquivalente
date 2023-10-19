@@ -71,14 +71,22 @@ function App() {
   function selecaoNutorna(event){
     var noturnoSelecionado = event.target.value;
 
-    console.log(noturnoSelecionado)
-
     if(noturnoSelecionado == 'sim'){
       setResultadoNoturno('15%')
     }else{
       setResultadoNoturno('0')
     }
 
+  }
+
+  function selecaoForaSede(event){
+    var foraSedeSelecionado = event.target.value;
+
+    if(foraSedeSelecionado == 'sim'){
+      setResultadoForaSede('10%')
+    }else{
+      setResultadoForaSede('0')
+    }
 
   }
 
@@ -174,7 +182,7 @@ function App() {
         <br></br>
         <Row>
           <Col md={3}>
-          <Form.Label>Noturno</Form.Label>
+          <Form.Label>Noturno </Form.Label>
           <Form.Check
             inline
             label="Sim"
@@ -198,25 +206,32 @@ function App() {
             <Form.Control type="text" value={resultadoNoturno} onChange={(e) => setResultadoNoturno(e.target.value)} disabled/>
           </Col>
         </Row>
-        <Form.Group>
-          <Form.Label>Fora da Sede</Form.Label>
-          <Form.Check
-            inline
-            label="Sim"
-            name="foraSede"
-            type="radio"
-            id="foraSede-sim"
-            onChange={() => setForaSede('Sim')}
-          />
-          <Form.Check
-            inline
-            label="Não"
-            name="foraSede"
-            type="radio"
-            id="foraSede-nao"
-            onChange={() => setForaSede('Não')}
-          />
-        </Form.Group>
+        <Row>
+          <Col md={3}>
+            <Form.Label>Fora da Sede </Form.Label>
+            <Form.Check
+              inline
+              label="Sim"
+              name="foraSede"
+              type="radio"
+              id="foraSede-sim"
+              value="sim"
+              onChange={selecaoForaSede}
+            />
+            <Form.Check
+              inline
+              label="Não"
+              name="foraSede"
+              type="radio"
+              id="foraSede-nao"
+              value="nao"
+              onChange={selecaoForaSede}
+            />
+          </Col>
+          <Col md={1}>
+            <Form.Control type="text" value={resultadoForaSede} onChange={(e) => setResultadoForaSede(e.target.value)} disabled/>
+          </Col>
+        </Row>
         {/* <Button variant="primary" type="submit">
           Processar
         </Button> */}
