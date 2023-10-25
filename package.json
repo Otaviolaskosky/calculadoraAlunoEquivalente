@@ -11,16 +11,16 @@
     "react-bootstrap": "^2.9.0",
     "react-dom": "^18.2.0",
     "react-helmet": "^6.1.0",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -43,8 +43,5 @@
   "devDependencies": {
     "gh-pages": "^6.0.0"
   },
-  "starter-project": {
-    "homepage": " https://otaviolaskosky.github.io/calculadoraAlunoEquivalente/",
-    "version": "0.1.0"
-  }
+  "homepage": "https://otaviolaskosky.github.io/calculadoraAlunoEquivalente/"
 }
