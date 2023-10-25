@@ -1,8 +1,15 @@
 import React, { useState, useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Helmet } from 'react-helmet';
 import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 
 function App() {
+
+
+
+  document.title = 'CAEMO'; // Set your title here
+
+
   const alunosIngressantesRef = useRef();
   const alunosDiplomadosRef = useRef();
   var valorPadraoResultadoAnoCriacao = 'DIGITE O ANO DE CRIAÇÃO DO CURSO';
@@ -21,6 +28,9 @@ function App() {
   const [resultadoNoturno, setResultadoNoturno] = useState('');
   const [foraSede, setForaSede] = useState('');
   const [resultadoForaSede, setResultadoForaSede] = useState('');
+  const [resultadoFinal, setResultadoFinal] = useState('');
+
+  
 
   function changeAreaSesu(event) {
 
@@ -92,6 +102,29 @@ function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setResultadoFinal('tesssssste')
+    var quantidadealunosIngressantes = parseFloat(alunosIngressantesRef.current.value)
+    var quantidadealunosDiplomados = parseFloat(alunosDiplomadosRef.current.value)
+    //Capturando resultado de um campo desabilitado
+
+    var numeroFatorRetencao = document.getElementById('fatorRetencao').value;
+    numeroFatorRetencao = numeroFatorRetencao.replace(',', '.')
+    numeroFatorRetencao = parseFloat(numeroFatorRetencao)
+   
+    var numeroDuracao = document.getElementById('duracao').value;
+    numeroDuracao = numeroDuracao.replace(',', '.')
+    numeroDuracao = parseFloat(numeroDuracao)
+
+    var numeroPeso = document.getElementById('peso').value;
+    numeroPeso = numeroPeso.replace(',', '.')
+    numeroPeso = parseFloat(numeroPeso)
+
+    if(quantidadealunosIngressantes < quantidadealunosDiplomados){
+      var resultado = quantidadealunosIngressantes * numeroFatorRetencao * numeroPeso * numeroDuracao
+      setResultadoFinal(resultado)
+    }
+
+
     // Processar os dados aqui
     console.log({
       areaSesu,
@@ -102,10 +135,13 @@ function App() {
       noturno,
       foraSede,
     });
+
   };
 
   return (
     <Container className="mt-5">
+      <Helmet>
+      <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAD1JREFUWMPt2EsOgCAMQ1HwE5jYAhCJFuM4zCIjIk3IJkEERllxCVGiZTbqyLY7x4YK01ct39jlv5AwXD7fwHrt1u72c3eg1gJ/DLVFRsvU8vgAAAABJRU5ErkJggg==" />      </Helmet>
       <h2 className="text-center mb-4">📟CALCULADORA DO ALUNO EQUIVALENTE DA MATRIZ OCC📟</h2>
       <br></br>
       <Form onSubmit={handleSubmit}>
@@ -133,20 +169,23 @@ function App() {
             <option value="CE1" data-retencao="0,1325" data-duracao="4" data-peso="1,5">Ciências Exatas - Mat, Comp, Est</option>
             <option value="CSC" data-retencao="0,1200" data-duracao="4" data-peso="1,5">Arquitetura/Urbanismo</option>
             <option value="CH2" data-retencao="0,1000" data-duracao="4" data-peso="1,0">Formação de Professor</option>
+            <option value="CH2" data-retencao="0,1000" data-duracao="4" data-peso="1,0">Formação de Professor</option>
+            <option value="CH2" data-retencao="0" data-duracao="2" data-peso="2,0">Mestrado</option>
+            <option value="CH2" data-retencao="0" data-duracao="2" data-peso="2,0">Doutorado</option>
             {/* Adicione mais opções conforme necessário */}
           </Form.Control>
           </Col>
           <Col md={2}>
           <Form.Label>Fator de Retenção</Form.Label>
-          <Form.Control type="text" value={fatorRetencao} onChange={(e) => setFatorRetencao(e.target.value)} placeholder='FATOR DE RETENÇÃO' disabled/>
+          <Form.Control id="fatorRetencao" type="text" value={fatorRetencao} onChange={(e) => setFatorRetencao(e.target.value)} placeholder='FATOR DE RETENÇÃO' disabled/>
           </Col>
           <Col md={2}>
           <Form.Label>Duração</Form.Label>
-          <Form.Control type="text" value={duracao} onChange={(e) => setDuracao(e.target.value)} placeholder='DURAÇÃO' disabled/>
+          <Form.Control id="duracao" type="text" value={duracao} onChange={(e) => setDuracao(e.target.value)} placeholder='DURAÇÃO' disabled/>
           </Col>
           <Col md={2}>
           <Form.Label>Peso</Form.Label>
-          <Form.Control type="text" value={peso} onChange={(e) => setPeso(e.target.value)} placeholder='PESO' disabled/>
+          <Form.Control id="peso" type="text" value={peso} onChange={(e) => setPeso(e.target.value)} placeholder='PESO' disabled/>
           </Col>
         </Row>
         <br></br>
@@ -232,10 +271,31 @@ function App() {
             <Form.Control type="text" value={resultadoForaSede} onChange={(e) => setResultadoForaSede(e.target.value)} disabled/>
           </Col>
         </Row>
-        {/* <Button variant="primary" type="submit">
-          Processar
-        </Button> */}
+        <br></br>
+         <Button variant="primary" type="submit">
+          Calcular
+        </Button>
+        <br></br>
+        <br></br>
+        <hr></hr>
+        <h4>RESULTADO:</h4>
+        <br></br>
+        <Row controlId="anoCriacao">
+          <Col md={12}>
+            <Form.Control type="text" value={resultadoFinal} onChange={(e) => setResultadoFinal(e.target.value)} placeholder="RESULTADO" disabled/>
+          </Col>
+        </Row>
+        <br></br>
+        <br></br>
       </Form>
+
+      <footer className="bg-dark text-light">
+      <Container>
+        <Row>
+
+        </Row>
+      </Container>
+    </footer>
     </Container>
   );
 }
