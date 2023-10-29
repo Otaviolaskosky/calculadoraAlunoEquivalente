@@ -5,13 +5,11 @@ import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 
 function App() {
 
-
-
   document.title = 'CAEMO'; // Set your title here
-
 
   const alunosIngressantesRef = useRef();
   const alunosDiplomadosRef = useRef();
+  const alunosMatriculadosRef = useRef();
   var valorPadraoResultadoAnoCriacao = 'DIGITE O ANO DE CRIAÇÃO DO CURSO';
   const [selectValue, setSelectValue] = useState('');
   const [fatorRetencao, setFatorRetencao] = useState('');
@@ -30,8 +28,6 @@ function App() {
   const [resultadoForaSede, setResultadoForaSede] = useState('');
   const [resultadoFinal, setResultadoFinal] = useState('');
 
-  
-
   function changeAreaSesu(event) {
 
     const selectedOption = event.target.selectedOptions[0];
@@ -41,18 +37,29 @@ function App() {
 
     setFatorRetencao(dataRetencaoAtual)
     setDuracao(dataDuracaoAtual)
-    setPeso(dataPesoAtual)    
+    setPeso(dataPesoAtual)
+    // Zera o ano de criação e seu resultado porque quando é mestrado e doutorado a base de calculo do ano de criação muda para 4 ou 8:    
+    setAnoCriacao('')
+    setResultadoAnoCriacao('')
   }
 
   function changeAnoCriacaoCurso(event){
     const anoCriacaoCursoAtual = event.target.value;
+    var valAreaSesu = document.getElementById('areaSesu').value;
+    var baseCalculoAnoCriacao = 10;
+
+    if(valAreaSesu == 'ME'){
+      baseCalculoAnoCriacao = 4
+    }else if(valAreaSesu == 'DO'){
+      baseCalculoAnoCriacao = 8
+    }
 
     setAnoCriacao(anoCriacaoCursoAtual)
 
     const tamanhoAnoCriacaoCursoAtual = anoCriacaoCursoAtual.length
     if(tamanhoAnoCriacaoCursoAtual == 4){
       const anoCriacaoCursoCalculado = 2022-anoCriacaoCursoAtual
-      if(anoCriacaoCursoCalculado > 10){
+      if(anoCriacaoCursoCalculado > baseCalculoAnoCriacao){
         setResultadoAnoCriacao('Consolidado')
       }else{
         setResultadoAnoCriacao('Novo')
@@ -67,8 +74,6 @@ function App() {
   function changeCalculoAlunos(event){
     var quantidadealunosIngressantes = alunosIngressantesRef.current.value
     var quantidadealunosDiplomados = alunosDiplomadosRef.current.value
-
-    console.log(quantidadealunosIngressantes-quantidadealunosDiplomados)
 
     if(quantidadealunosIngressantes-quantidadealunosDiplomados == 0){
       setIngressantesMenosDiplomados('')
@@ -102,11 +107,11 @@ function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setResultadoFinal('tesssssste')
+    var resultado = '';
     var quantidadealunosIngressantes = parseFloat(alunosIngressantesRef.current.value)
     var quantidadealunosDiplomados = parseFloat(alunosDiplomadosRef.current.value)
+    
     //Capturando resultado de um campo desabilitado
-
     var numeroFatorRetencao = document.getElementById('fatorRetencao').value;
     numeroFatorRetencao = numeroFatorRetencao.replace(',', '.')
     numeroFatorRetencao = parseFloat(numeroFatorRetencao)
@@ -118,23 +123,100 @@ function App() {
     var numeroPeso = document.getElementById('peso').value;
     numeroPeso = numeroPeso.replace(',', '.')
     numeroPeso = parseFloat(numeroPeso)
+    
+    var numeroResultadoNoturno = document.getElementById('resultadoNoturno').value;
 
-    if(quantidadealunosIngressantes < quantidadealunosDiplomados){
-      var resultado = quantidadealunosIngressantes * numeroFatorRetencao * numeroPeso * numeroDuracao
-      setResultadoFinal(resultado)
+    if(numeroResultadoNoturno.length > 0){
+      numeroResultadoNoturno = numeroResultadoNoturno.replace(',', '.')
+      numeroResultadoNoturno = parseFloat(numeroResultadoNoturno)
+      numeroResultadoNoturno = numeroResultadoNoturno /100
+    }else{
+      numeroResultadoNoturno = 0
     }
 
+    var numeroResultadoForaSede = document.getElementById('resultadoForaSede').value;
 
-    // Processar os dados aqui
-    console.log({
-      areaSesu,
-      anoCriacao,
-      alunosIngressantes,
-      alunosDiplomados,
-      alunosMatriculados,
-      noturno,
-      foraSede,
-    });
+    if(numeroResultadoForaSede.length > 0){
+      numeroResultadoForaSede = numeroResultadoForaSede.replace(',', '.')
+      numeroResultadoForaSede = parseFloat(numeroResultadoForaSede)
+      numeroResultadoForaSede = numeroResultadoForaSede /100
+    }else{
+      numeroResultadoForaSede = 0
+    }
+
+    var numeroAlunosIngressantes = alunosIngressantesRef.current.value
+    var numeroAlunosDiplomados = alunosDiplomadosRef.current.value
+    var numeroAlunosMatriculados = alunosMatriculadosRef.current.value
+
+    var valResultadoAnoCriacao = document.getElementById('resultadoAnoCriacao').value;
+
+    var valAreaSesu = document.getElementById('areaSesu').value;
+
+    ////////////////////////////
+    //     CONDIÇÕES:
+    ////////////////////////////
+
+    /*Para quando o nº de alunos ingressantes for menor que o nº de alunos diplomados:
+    Nº de alunos Diplomados x (1 + Fator de retenção) x Peso de curso x Duração do curso
+    x Bônus noturno x Bônus fora da sede (somente se houver bônus, não multiplica por 0 quando não houver):*/
+    if(quantidadealunosIngressantes < quantidadealunosDiplomados){
+      resultado = quantidadealunosIngressantes * numeroFatorRetencao * numeroPeso * numeroDuracao
+
+      if(numeroResultadoNoturno.length > 0 || numeroResultadoNoturno != 0 ){
+        resultado = resultado * numeroResultadoNoturno
+      }
+
+      if(numeroResultadoForaSede.length > 0 || numeroResultadoForaSede != 0 ){
+        resultado = resultado * numeroResultadoForaSede
+      }
+      /*Para curso consolidado:
+      Nº de alunos Diplomados x (1 + Fator de retenção) + (Nº de alunos ingressantes – Número de alunos Diplomados) / 4 x Peso de Curso x Duração do Curso
+      x Bônus noturno x Bônus fora da sede (somente se houver bônus, não multiplica por 0 quando não houver)*/
+    }else if(valAreaSesu == 'ME' || valAreaSesu == 'DO'){
+      
+      if(valResultadoAnoCriacao == 'Consolidado'){
+        resultado = numeroAlunosDiplomados * numeroDuracao * numeroPeso 
+      }else if(valResultadoAnoCriacao == 'Novo'){
+        resultado = numeroAlunosMatriculados * numeroPeso
+      }
+      
+    }else if(valResultadoAnoCriacao == 'Consolidado'){
+
+      resultado = numeroAlunosDiplomados * (1 + numeroFatorRetencao) + (numeroAlunosIngressantes - numeroAlunosDiplomados) / 4 * numeroPeso * numeroDuracao
+
+      if(numeroResultadoNoturno.length > 0 || numeroResultadoNoturno != 0 ){
+        resultado = resultado * numeroResultadoNoturno
+      }
+
+      if(numeroResultadoForaSede.length > 0 || numeroResultadoForaSede != 0 ){
+        resultado = resultado * numeroResultadoForaSede
+      }
+
+      /*Para curso novo:
+      Nº de alunos Matriculados x Peso do Curso
+      x Bônus noturno x Bônus fora da sede (somente se houver bônus, não multiplica por 0 quando não houver)*/
+    }else if(valResultadoAnoCriacao == 'Novo'){
+
+      resultado = numeroAlunosMatriculados * numeroPeso
+
+      if(numeroResultadoNoturno.length > 0 || numeroResultadoNoturno != 0 ){
+        resultado = resultado * numeroResultadoNoturno
+      }
+
+      if(numeroResultadoForaSede.length > 0 || numeroResultadoForaSede != 0 ){
+        resultado = resultado * numeroResultadoForaSede
+      }
+
+      /*Para mestrado e doutorado:
+      Consolidado - Nº de alunos Diplomados x Duração do curso x Peso do curso
+      Novo - Nº de alunos matriculados x Peso do curso*/
+    }
+
+    resultado = resultado.toString();
+
+    resultado = resultado.replace('.', ',')
+
+    setResultadoFinal(resultado)
 
   };
 
@@ -148,7 +230,7 @@ function App() {
         <Row controlId="areaSesu">
           <Col md={6}>
           <Form.Label className="text-center mb-2" >Área Sesu</Form.Label>
-          <Form.Control as="select" onChange={changeAreaSesu}>
+          <Form.Control id="areaSesu" as="select" onChange={changeAreaSesu} required>
             <option value="" data-retencao="" data-duracao="" data-peso="">Selecione a Área Sesu</option>
             <option value="A" data-retencao="0,1500" data-duracao="4" data-peso="1,5">Artes</option>
             <option value="CA" data-retencao="0,0500" data-duracao="5" data-peso="2,0">Ciências Agrárias</option>
@@ -170,9 +252,8 @@ function App() {
             <option value="CSC" data-retencao="0,1200" data-duracao="4" data-peso="1,5">Arquitetura/Urbanismo</option>
             <option value="CH2" data-retencao="0,1000" data-duracao="4" data-peso="1,0">Formação de Professor</option>
             <option value="CH2" data-retencao="0,1000" data-duracao="4" data-peso="1,0">Formação de Professor</option>
-            <option value="CH2" data-retencao="0" data-duracao="2" data-peso="2,0">Mestrado</option>
-            <option value="CH2" data-retencao="0" data-duracao="2" data-peso="2,0">Doutorado</option>
-            {/* Adicione mais opções conforme necessário */}
+            <option value="ME" data-retencao="0" data-duracao="2" data-peso="2,0">Mestrado</option>
+            <option value="DO" data-retencao="0" data-duracao="2" data-peso="2,0">Doutorado</option>
           </Form.Control>
           </Col>
           <Col md={2}>
@@ -196,22 +277,22 @@ function App() {
           </Col>
           <Col md={6}>
             <Form.Label>Resultado Ano de Criação do Curso</Form.Label>
-            <Form.Control type="text" value={resultadoAnoCriacao} onChange={(e) => setResultadoAnoCriacao(e.target.value)} placeholder={valorPadraoResultadoAnoCriacao} disabled/>
+            <Form.Control id="resultadoAnoCriacao" type="text" value={resultadoAnoCriacao} onChange={(e) => setResultadoAnoCriacao(e.target.value)} placeholder={valorPadraoResultadoAnoCriacao} disabled/>
           </Col>
         </Row>
         <br></br>
         <Row>
           <Col md={3}>
             <Form.Label>Nº de Alunos Ingressantes</Form.Label>
-            <Form.Control ref={alunosIngressantesRef} type="number" onChange={changeCalculoAlunos} placeholder='Nº DE ALUNOS INGRESSANTES'/>
+            <Form.Control  ref={alunosIngressantesRef} type="number" onChange={changeCalculoAlunos} placeholder='Nº DE ALUNOS INGRESSANTES'/>
           </Col>
           <Col md={3}>
             <Form.Label>Nº de Alunos Diplomados</Form.Label>
-            <Form.Control ref={alunosDiplomadosRef} type="number" onChange={changeCalculoAlunos} placeholder='Nº DE ALUNOS DIPLOMADOS'/>
+            <Form.Control  ref={alunosDiplomadosRef} type="number" onChange={changeCalculoAlunos} placeholder='Nº DE ALUNOS DIPLOMADOS'/>
           </Col>
           <Col md={3}>
             <Form.Label>Nº de Alunos Matriculados</Form.Label>
-            <Form.Control type="number" onChange={(e) => setAlunosMatriculados(e.target.value)} placeholder='Nº DE ALUNOS MATRICULADOS' />
+            <Form.Control  type="number" ref={alunosMatriculadosRef} onChange={(e) => setAlunosMatriculados(e.target.value)} placeholder='Nº DE ALUNOS MATRICULADOS' />
           </Col>
           <Col md={3}>
             <Form.Label>Ingressantes - Diplomados</Form.Label>
@@ -242,7 +323,7 @@ function App() {
           />
           </Col>
           <Col md={1}>
-            <Form.Control type="text" value={resultadoNoturno} onChange={(e) => setResultadoNoturno(e.target.value)} disabled/>
+            <Form.Control id="resultadoNoturno" type="text" value={resultadoNoturno} onChange={(e) => setResultadoNoturno(e.target.value)} disabled/>
           </Col>
         </Row>
         <Row>
@@ -268,7 +349,7 @@ function App() {
             />
           </Col>
           <Col md={1}>
-            <Form.Control type="text" value={resultadoForaSede} onChange={(e) => setResultadoForaSede(e.target.value)} disabled/>
+            <Form.Control id="resultadoForaSede" type="text" value={resultadoForaSede} onChange={(e) => setResultadoForaSede(e.target.value)} disabled/>
           </Col>
         </Row>
         <br></br>
