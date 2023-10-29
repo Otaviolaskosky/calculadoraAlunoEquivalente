@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Helmet } from 'react-helmet';
 import { Container, Form, Button, Row, Col } from 'react-bootstrap';
+import $ from 'jquery';
 
 function App() {
 
@@ -10,6 +11,8 @@ function App() {
   const alunosIngressantesRef = useRef();
   const alunosDiplomadosRef = useRef();
   const alunosMatriculadosRef = useRef();
+  const anoCriacaoRef = useRef();
+  const anoCriacaoBaseCalculoRef = useRef();
   var valorPadraoResultadoAnoCriacao = 'DIGITE O ANO DE CRIAÇÃO DO CURSO';
   const [selectValue, setSelectValue] = useState('');
   const [fatorRetencao, setFatorRetencao] = useState('');
@@ -17,6 +20,7 @@ function App() {
   const [peso, setPeso] = useState('');
   const [areaSesu, setAreaSesu] = useState('');
   const [anoCriacao, setAnoCriacao] = useState('');
+  const [anoCriacaoBaseCalculo, setAnoCriacaoBaseCalculo] = useState('');
   const [resultadoAnoCriacao, setResultadoAnoCriacao] = useState('');
   const [alunosIngressantes, setAlunosIngressantes] = useState('');
   const [alunosDiplomados, setAlunosDiplomados] = useState('');
@@ -44,7 +48,8 @@ function App() {
   }
 
   function changeAnoCriacaoCurso(event){
-    const anoCriacaoCursoAtual = event.target.value;
+    const anoCriacaoCursoAtual = anoCriacaoRef.current.value
+    const nAnoCriacaoBaseCalculo = anoCriacaoBaseCalculoRef.current.value
     var valAreaSesu = document.getElementById('areaSesu').value;
     var baseCalculoAnoCriacao = 10;
 
@@ -55,10 +60,12 @@ function App() {
     }
 
     setAnoCriacao(anoCriacaoCursoAtual)
+    setAnoCriacaoBaseCalculo(nAnoCriacaoBaseCalculo)
 
     const tamanhoAnoCriacaoCursoAtual = anoCriacaoCursoAtual.length
-    if(tamanhoAnoCriacaoCursoAtual == 4){
-      const anoCriacaoCursoCalculado = 2022-anoCriacaoCursoAtual
+    const tamanhoAnoCriacaoBaseCalculo = nAnoCriacaoBaseCalculo.length
+    if(tamanhoAnoCriacaoCursoAtual == 4 && tamanhoAnoCriacaoBaseCalculo == 4){
+      const anoCriacaoCursoCalculado = nAnoCriacaoBaseCalculo-anoCriacaoCursoAtual
       if(anoCriacaoCursoCalculado > baseCalculoAnoCriacao){
         setResultadoAnoCriacao('Consolidado')
       }else{
@@ -156,41 +163,64 @@ function App() {
     //     CONDIÇÕES:
     ////////////////////////////
 
-    /*Para quando o nº de alunos ingressantes for menor que o nº de alunos diplomados:
-    Nº de alunos Diplomados x (1 + Fator de retenção) x Peso de curso x Duração do curso
-    x Bônus noturno x Bônus fora da sede (somente se houver bônus, não multiplica por 0 quando não houver):*/
-    if(quantidadealunosIngressantes < quantidadealunosDiplomados){
-      resultado = quantidadealunosIngressantes * numeroFatorRetencao * numeroPeso * numeroDuracao
-
-      if(numeroResultadoNoturno.length > 0 || numeroResultadoNoturno != 0 ){
-        resultado = resultado * numeroResultadoNoturno
-      }
-
-      if(numeroResultadoForaSede.length > 0 || numeroResultadoForaSede != 0 ){
-        resultado = resultado * numeroResultadoForaSede
-      }
-      /*Para curso consolidado:
-      Nº de alunos Diplomados x (1 + Fator de retenção) + (Nº de alunos ingressantes – Número de alunos Diplomados) / 4 x Peso de Curso x Duração do Curso
-      x Bônus noturno x Bônus fora da sede (somente se houver bônus, não multiplica por 0 quando não houver)*/
-    }else if(valAreaSesu == 'ME' || valAreaSesu == 'DO'){
+    /*Para mestrado e doutorado:
+      Consolidado - Nº de alunos Diplomados x Duração do curso x Peso do curso
+      Novo - Nº de alunos matriculados x Peso do curso*/
+  if(valAreaSesu == 'ME' || valAreaSesu == 'DO'){
       
       if(valResultadoAnoCriacao == 'Consolidado'){
         resultado = numeroAlunosDiplomados * numeroDuracao * numeroPeso 
       }else if(valResultadoAnoCriacao == 'Novo'){
         resultado = numeroAlunosMatriculados * numeroPeso
       }
-      
-    }else if(valResultadoAnoCriacao == 'Consolidado'){
 
-      resultado = numeroAlunosDiplomados * (1 + numeroFatorRetencao) + (numeroAlunosIngressantes - numeroAlunosDiplomados) / 4 * numeroPeso * numeroDuracao
+    /*Para quando o nº de alunos ingressantes for menor que o nº de alunos diplomados:
+    Nº de alunos Diplomados x (1 + Fator de retenção) x Peso de curso x Duração do curso
+    x Bônus noturno x Bônus fora da sede (somente se houver bônus, não multiplica por 0 quando não houver):*/
+      }else if(quantidadealunosIngressantes < quantidadealunosDiplomados){
+      resultado = quantidadealunosDiplomados
+      resultado *=  (1+numeroFatorRetencao)
+      resultado *= numeroPeso 
+      resultado *= numeroDuracao
 
       if(numeroResultadoNoturno.length > 0 || numeroResultadoNoturno != 0 ){
-        resultado = resultado * numeroResultadoNoturno
+        var resultadoNoturno = resultado * numeroResultadoNoturno;
+      }else{
+        var resultadoNoturno = 0;
       }
 
       if(numeroResultadoForaSede.length > 0 || numeroResultadoForaSede != 0 ){
-        resultado = resultado * numeroResultadoForaSede
+        var resultadoForaSede = resultado * numeroResultadoForaSede;
+      }else{
+        var resultadoForaSede = 0;
       }
+
+      resultado += resultadoNoturno + resultadoForaSede;
+      
+      /*Para curso consolidado:
+      Nº de alunos Diplomados x (1 + Fator de retenção) + (Nº de alunos ingressantes – Número de alunos Diplomados) / 4 x Peso de Curso x Duração do Curso
+      x Bônus noturno x Bônus fora da sede (somente se houver bônus, não multiplica por 0 quando não houver)*/
+    }else if(valResultadoAnoCriacao == 'Consolidado'){
+
+      resultado = numeroAlunosDiplomados 
+      resultado *= (1 + numeroFatorRetencao) 
+      resultado += ((numeroAlunosIngressantes - numeroAlunosDiplomados)/4) 
+      resultado *= numeroPeso 
+      resultado *= numeroDuracao
+
+      if(numeroResultadoNoturno.length > 0 || numeroResultadoNoturno != 0 ){
+        var resultadoNoturno = resultado * numeroResultadoNoturno;
+      }else{
+        var resultadoNoturno = 0;
+      }
+
+      if(numeroResultadoForaSede.length > 0 || numeroResultadoForaSede != 0 ){
+        var resultadoForaSede = resultado * numeroResultadoForaSede;
+      }else{
+        var resultadoForaSede = 0;
+      }
+
+      resultado += resultadoNoturno + resultadoForaSede;
 
       /*Para curso novo:
       Nº de alunos Matriculados x Peso do Curso
@@ -200,16 +230,19 @@ function App() {
       resultado = numeroAlunosMatriculados * numeroPeso
 
       if(numeroResultadoNoturno.length > 0 || numeroResultadoNoturno != 0 ){
-        resultado = resultado * numeroResultadoNoturno
+        var resultadoNoturno = resultado * numeroResultadoNoturno;
+      }else{
+        var resultadoNoturno = 0;
       }
 
       if(numeroResultadoForaSede.length > 0 || numeroResultadoForaSede != 0 ){
-        resultado = resultado * numeroResultadoForaSede
+        var resultadoForaSede = resultado * numeroResultadoForaSede;
+      }else{
+        var resultadoForaSede = 0;
       }
 
-      /*Para mestrado e doutorado:
-      Consolidado - Nº de alunos Diplomados x Duração do curso x Peso do curso
-      Novo - Nº de alunos matriculados x Peso do curso*/
+      resultado += resultadoNoturno + resultadoForaSede;
+
     }
 
     resultado = resultado.toString();
@@ -220,13 +253,24 @@ function App() {
 
   };
 
+  function handleClearFields(event){
+    $('#create-course-form')[0].reset();
+    setFatorRetencao('');
+    setDuracao('');
+    setPeso('');
+    setAnoCriacao('');
+    setAnoCriacaoBaseCalculo('');
+    setResultadoAnoCriacao('');
+    setResultadoFinal('');
+  }
+
   return (
     <Container className="mt-5">
       <Helmet>
       <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAD1JREFUWMPt2EsOgCAMQ1HwE5jYAhCJFuM4zCIjIk3IJkEERllxCVGiZTbqyLY7x4YK01ct39jlv5AwXD7fwHrt1u72c3eg1gJ/DLVFRsvU8vgAAAABJRU5ErkJggg==" />      </Helmet>
       <h2 className="text-center mb-4">📟CALCULADORA DO ALUNO EQUIVALENTE DA MATRIZ OCC📟</h2>
       <br></br>
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit} id="create-course-form">
         <Row controlId="areaSesu">
           <Col md={6}>
           <Form.Label className="text-center mb-2" >Área Sesu</Form.Label>
@@ -253,7 +297,7 @@ function App() {
             <option value="CH2" data-retencao="0,1000" data-duracao="4" data-peso="1,0">Formação de Professor</option>
             <option value="CH2" data-retencao="0,1000" data-duracao="4" data-peso="1,0">Formação de Professor</option>
             <option value="ME" data-retencao="0" data-duracao="2" data-peso="2,0">Mestrado</option>
-            <option value="DO" data-retencao="0" data-duracao="2" data-peso="2,0">Doutorado</option>
+            <option value="DO" data-retencao="0" data-duracao="4" data-peso="2,0">Doutorado</option>
           </Form.Control>
           </Col>
           <Col md={2}>
@@ -271,11 +315,15 @@ function App() {
         </Row>
         <br></br>
         <Row controlId="anoCriacao">
-          <Col md={6}>
+          <Col md={4}>
           <Form.Label>Ano de Criação do Curso</Form.Label>
-          <Form.Control type="text" value={anoCriacao} onChange={changeAnoCriacaoCurso} placeholder='ANO DE CRIAÇÃO DO CURSO'/>
+          <Form.Control type="number" ref={anoCriacaoRef} value={anoCriacao} onChange={changeAnoCriacaoCurso} placeholder='ANO DE CRIAÇÃO DO CURSO'/>
           </Col>
-          <Col md={6}>
+          <Col md={4}>
+          <Form.Label>Ano Base de Calculo</Form.Label>
+          <Form.Control type="number" ref={anoCriacaoBaseCalculoRef} value={anoCriacaoBaseCalculo} onChange={changeAnoCriacaoCurso} placeholder='ANO DE CRIAÇÃO DO CURSO'/>
+          </Col>
+          <Col md={4}>
             <Form.Label>Resultado Ano de Criação do Curso</Form.Label>
             <Form.Control id="resultadoAnoCriacao" type="text" value={resultadoAnoCriacao} onChange={(e) => setResultadoAnoCriacao(e.target.value)} placeholder={valorPadraoResultadoAnoCriacao} disabled/>
           </Col>
@@ -353,9 +401,18 @@ function App() {
           </Col>
         </Row>
         <br></br>
+        <Row>
+        <Col md={1}>
          <Button variant="primary" type="submit">
           Calcular
         </Button>
+        </Col>
+        <Col md={1}>
+        <Button variant="info" onClick={handleClearFields}>
+          Limpar
+        </Button>
+        </Col>
+        </Row>
         <br></br>
         <br></br>
         <hr></hr>
