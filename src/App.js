@@ -295,7 +295,6 @@ function App() {
             <option value="CE1" data-retencao="0,1325" data-duracao="4" data-peso="1,5">Ciências Exatas - Mat, Comp, Est</option>
             <option value="CSC" data-retencao="0,1200" data-duracao="4" data-peso="1,5">Arquitetura/Urbanismo</option>
             <option value="CH2" data-retencao="0,1000" data-duracao="4" data-peso="1,0">Formação de Professor</option>
-            <option value="CH2" data-retencao="0,1000" data-duracao="4" data-peso="1,0">Formação de Professor</option>
             <option value="ME" data-retencao="0" data-duracao="2" data-peso="2,0">Mestrado</option>
             <option value="DO" data-retencao="0" data-duracao="4" data-peso="2,0">Doutorado</option>
           </Form.Control>
@@ -321,7 +320,7 @@ function App() {
           </Col>
           <Col md={4}>
           <Form.Label>Ano Base de Calculo</Form.Label>
-          <Form.Control type="number" ref={anoCriacaoBaseCalculoRef} value={anoCriacaoBaseCalculo} onChange={changeAnoCriacaoCurso} placeholder='ANO DE CRIAÇÃO DO CURSO'/>
+          <Form.Control type="number" ref={anoCriacaoBaseCalculoRef} value={anoCriacaoBaseCalculo} onChange={changeAnoCriacaoCurso} placeholder='ANO BASE DE CALCULO'/>
           </Col>
           <Col md={4}>
             <Form.Label>Resultado Ano de Criação do Curso</Form.Label>
