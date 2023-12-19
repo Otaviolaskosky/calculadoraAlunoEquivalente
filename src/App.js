@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Helmet } from 'react-helmet';
-import { Container, Form, Button, Row, Col } from 'react-bootstrap';
+import { Container, Form, Button, Row, Col,OverlayTrigger, Tooltip } from 'react-bootstrap';
 import $ from 'jquery';
 
 function App() {
@@ -245,9 +245,13 @@ function App() {
 
     }
 
+    resultado = resultado.toFixed(2);
+
     resultado = resultado.toString();
 
     resultado = resultado.replace('.', ',')
+
+    
 
     setResultadoFinal(resultado)
 
@@ -262,7 +266,13 @@ function App() {
     setAnoCriacaoBaseCalculo('');
     setResultadoAnoCriacao('');
     setResultadoFinal('');
-  }
+  };
+
+  const years = Array.from({ length: 151 }, (_, index) => 1900 + index);
+
+  const hiddenStyle = {
+    display: 'none',
+  };
 
   return (
     <Container className="mt-5">
@@ -275,28 +285,29 @@ function App() {
           <Col md={6}>
           <Form.Label className="text-center mb-2" >Área Sesu</Form.Label>
           <Form.Control id="areaSesu" as="select" onChange={changeAreaSesu} required>
-            <option value="" data-retencao="" data-duracao="" data-peso="">Selecione a Área Sesu</option>
-            <option value="A" data-retencao="0,1500" data-duracao="4" data-peso="1,5">Artes</option>
-            <option value="CA" data-retencao="0,0500" data-duracao="5" data-peso="2,0">Ciências Agrárias</option>
-            <option value="CB" data-retencao="0,1250" data-duracao="4" data-peso="2,0">Ciências Biológicas</option>
-            <option value="CET" data-retencao="0,1325" data-duracao="4" data-peso="2,0">Ciências Exatas e da Terra</option>
-            <option value="CH" data-retencao="0,1000" data-duracao="4" data-peso="1,0">Ciências Humanas</option>
-            <option value="CH1" data-retencao="0,1000" data-duracao="5" data-peso="1,0">Psicologia</option>
-            <option value="CS1" data-retencao="0,0650" data-duracao="6" data-peso="4,5">Medicina</option>
-            <option value="CS2" data-retencao="0,0650" data-duracao="5" data-peso="4,5">Veterinária, Odontologia, Zootecnia</option>
-            <option value="CS3" data-retencao="0,0660" data-duracao="5" data-peso="2,0">Nutrição, Farmácia</option>
-            <option value="CS4" data-retencao="0,0660" data-duracao="5" data-peso="1,5">Enfermagem, Fisio, Fono, Ed Física</option>
-            <option value="CSA" data-retencao="0,1200" data-duracao="4" data-peso="1,0">Ciências Sociais Aplicadas</option>
-            <option value="CSB" data-retencao="0,1200" data-duracao="5" data-peso="1,0">Direito</option>
-            <option value="ENG" data-retencao="0,0820" data-duracao="5" data-peso="2,0">Engenharias</option>
-            <option value="LL" data-retencao="0,1150" data-duracao="4" data-peso="1,0">Linguística e Letras</option>
-            <option value="M" data-retencao="0,1150" data-duracao="4" data-peso="1,5">Música</option>
-            <option value="TEC" data-retencao="0,0820" data-duracao="3" data-peso="2,0">Tecnólogos</option>
-            <option value="CE1" data-retencao="0,1325" data-duracao="4" data-peso="1,5">Ciências Exatas - Mat, Comp, Est</option>
-            <option value="CSC" data-retencao="0,1200" data-duracao="4" data-peso="1,5">Arquitetura/Urbanismo</option>
-            <option value="CH2" data-retencao="0,1000" data-duracao="4" data-peso="1,0">Formação de Professor</option>
-            <option value="ME" data-retencao="0" data-duracao="2" data-peso="2,0">Mestrado</option>
-            <option value="DO" data-retencao="0" data-duracao="4" data-peso="2,0">Doutorado</option>
+          <option value="" data-retencao="" data-duracao="" data-peso="">Selecione a Área Sesu</option>
+          <option value="A" data-retencao="0,1500" data-duracao="4" data-peso="1,5">A - Artes</option>
+          <option value="CA" data-retencao="0,0500" data-duracao="5" data-peso="2,0">CA - Ciências Agrárias</option>
+          <option value="CB" data-retencao="0,1250" data-duracao="4" data-peso="2,0">CB - Ciências Biológicas</option>
+          <option value="CET" data-retencao="0,1325" data-duracao="4" data-peso="2,0">CET - Ciências Exatas e da Terra</option>
+          <option value="CH" data-retencao="0,1000" data-duracao="4" data-peso="1,0">CH - Ciências Humanas</option>
+          <option value="CH1" data-retencao="0,1000" data-duracao="5" data-peso="1,0">CH1 - Psicologia</option>
+          <option value="CS1" data-retencao="0,0650" data-duracao="6" data-peso="4,5">CS1 - Medicina</option>
+          <option value="CS2" data-retencao="0,0650" data-duracao="5" data-peso="4,5">CS2 - Veterinária, Odontologia, Zootecnia</option>
+          <option value="CS3" data-retencao="0,0660" data-duracao="5" data-peso="2,0">CS3 - Nutrição, Farmácia</option>
+          <option value="CS4" data-retencao="0,0660" data-duracao="5" data-peso="1,5">CS4 - Enfermagem, Fisio, Fono, Ed Física</option>
+          <option value="CSA" data-retencao="0,1200" data-duracao="4" data-peso="1,0">CSA - Ciências Sociais Aplicadas</option>
+          <option value="CSB" data-retencao="0,1200" data-duracao="5" data-peso="1,0">CSB - Direito</option>
+          <option value="ENG" data-retencao="0,0820" data-duracao="5" data-peso="2,0">ENG - Engenharias</option>
+          <option value="LL" data-retencao="0,1150" data-duracao="4" data-peso="1,0">LL - Linguística e Letras</option>
+          <option value="M" data-retencao="0,1150" data-duracao="4" data-peso="1,5">M - Música</option>
+          <option value="TEC" data-retencao="0,0820" data-duracao="3" data-peso="2,0">TEC - Tecnólogos</option>
+          <option value="CE1" data-retencao="0,1325" data-duracao="4" data-peso="1,5">CE1 - Ciências Exatas - Mat, Comp, Est</option>
+          <option value="CSC" data-retencao="0,1200" data-duracao="4" data-peso="1,5">CSC - Arquitetura/Urbanismo</option>
+          <option value="CH2" data-retencao="0,1000" data-duracao="4" data-peso="1,0">CH2 - Formação de Professor</option>
+          <option value="ME" data-retencao="0" data-duracao="2" data-peso="2,0">ME - Mestrado</option>
+          <option value="DO" data-retencao="0" data-duracao="4" data-peso="2,0">DO - Doutorado</option>
+
           </Form.Control>
           </Col>
           <Col md={2}>
@@ -304,7 +315,7 @@ function App() {
           <Form.Control id="fatorRetencao" type="text" value={fatorRetencao} onChange={(e) => setFatorRetencao(e.target.value)} placeholder='FATOR DE RETENÇÃO' disabled/>
           </Col>
           <Col md={2}>
-          <Form.Label>Duração</Form.Label>
+          <Form.Label>Duração Média</Form.Label>
           <Form.Control id="duracao" type="text" value={duracao} onChange={(e) => setDuracao(e.target.value)} placeholder='DURAÇÃO' disabled/>
           </Col>
           <Col md={2}>
@@ -316,11 +327,39 @@ function App() {
         <Row controlId="anoCriacao">
           <Col md={4}>
           <Form.Label>Ano de Criação do Curso</Form.Label>
-          <Form.Control type="number" ref={anoCriacaoRef} value={anoCriacao} onChange={changeAnoCriacaoCurso} placeholder='ANO DE CRIAÇÃO DO CURSO'/>
+          {/* <Form.Control type="number" ref={anoCriacaoRef} value={anoCriacao} onChange={changeAnoCriacaoCurso} placeholder='ANO DE CRIAÇÃO DO CURSO'/> */}
+          {/* Use the map function to create the dropdown options */}
+          <Form.Control as="select" ref={anoCriacaoRef} value={anoCriacao} onChange={changeAnoCriacaoCurso} placeholder='ANO DE CRIAÇÃO DO CURSO'>
+            <option value="">Selecione o Ano de Criação do Curso</option>
+            {years.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </Form.Control>
           </Col>
           <Col md={4}>
           <Form.Label>Ano Base de Calculo</Form.Label>
-          <Form.Control type="number" ref={anoCriacaoBaseCalculoRef} value={anoCriacaoBaseCalculo} onChange={changeAnoCriacaoCurso} placeholder='ANO BASE DE CALCULO'/>
+          {/* <Form.Control type="number" ref={anoCriacaoBaseCalculoRef} value={anoCriacaoBaseCalculo} onChange={changeAnoCriacaoCurso} placeholder='ANO BASE DE CALCULO'/> */}
+          <OverlayTrigger
+            placement="top"
+            overlay={
+              <Tooltip id="tooltip-ano-base-calculo">
+                O ano base de cálculo é o ano que se pretende saber o aluno equivalente.
+                Exemplo: o usuário pretende saber o aluno equivalente de determinado
+                curso em 2015, então, o ano base de cálculo será 2015.
+              </Tooltip>
+            }
+          >
+            <Form.Control as="select" ref={anoCriacaoBaseCalculoRef} value={anoCriacaoBaseCalculo} onChange={changeAnoCriacaoCurso} placeholder='ANO BASE DE CALCULO'>
+              <option value="">Selecione o Ano Base de Calculo</option>
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </Form.Control>
+          </OverlayTrigger>
           </Col>
           <Col md={4}>
             <Form.Label>Resultado Ano de Criação do Curso</Form.Label>
@@ -329,22 +368,49 @@ function App() {
         </Row>
         <br></br>
         <Row>
-          <Col md={3}>
+          <Col md={4}>
             <Form.Label>Nº de Alunos Ingressantes</Form.Label>
+            <OverlayTrigger
+            placement="top"
+            overlay={
+              <Tooltip id="tooltip-ano-base-calculo">
+                Do ano anterior ao ano base de cálculo.
+              </Tooltip>
+            }
+          >
             <Form.Control  ref={alunosIngressantesRef} type="number" onChange={changeCalculoAlunos} placeholder='Nº DE ALUNOS INGRESSANTES'/>
+            </OverlayTrigger>
           </Col>
-          <Col md={3}>
+          <Col md={4}>
             <Form.Label>Nº de Alunos Diplomados</Form.Label>
+            <OverlayTrigger
+            placement="top"
+            overlay={
+              <Tooltip id="tooltip-ano-base-calculo">
+                Do ano anterior ao ano base de cálculo.
+              </Tooltip>
+            }
+          >
             <Form.Control  ref={alunosDiplomadosRef} type="number" onChange={changeCalculoAlunos} placeholder='Nº DE ALUNOS DIPLOMADOS'/>
+            </OverlayTrigger>
           </Col>
-          <Col md={3}>
+          <Col md={4}>
             <Form.Label>Nº de Alunos Matriculados</Form.Label>
+            <OverlayTrigger
+            placement="top"
+            overlay={
+              <Tooltip id="tooltip-ano-base-calculo">
+                Do ano anterior ao ano base de cálculo.
+              </Tooltip>
+            }
+          >
             <Form.Control  type="number" ref={alunosMatriculadosRef} onChange={(e) => setAlunosMatriculados(e.target.value)} placeholder='Nº DE ALUNOS MATRICULADOS' />
+            </OverlayTrigger>
           </Col>
-          <Col md={3}>
+          {/* <Col md={3}>
             <Form.Label>Ingressantes - Diplomados</Form.Label>
-            <Form.Control type="text" value={ingressantesMenosDiplomados} onChange={(e) => setIngressantesMenosDiplomados(e.target.value)} placeholder='INGRESSANTES - DIPLOMADOS' disabled/>
-          </Col>
+            <Form.Control style={hiddenStyle} type="text" value={ingressantesMenosDiplomados} onChange={(e) => setIngressantesMenosDiplomados(e.target.value)} placeholder='INGRESSANTES - DIPLOMADOS' disabled/>
+          </Col> */}
         </Row>
         <br></br>
         <Row>
